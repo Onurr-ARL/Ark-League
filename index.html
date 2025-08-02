@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Arık Lig</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @font-face {
+            font-family: 'Champions-Bold';
+            src: url('Champions-Bold.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+        }
+        body {
+            background: url('arikligwp.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            min-height: 100vh;
+            font-weight: normal;
+            transition: background-image 0.3s;
+        }
+        ::-webkit-scrollbar { width: 0 !important; height: 0 !important; background: transparent !important; }
+        body, html {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .footer {
+            position: fixed;
+            right: 24px;
+            bottom: 12px;
+            color: #fff;
+            font-size: 1rem;
+            z-index: 10;
+            user-select: none;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            text-shadow: 0 2px 8px #0008;
+        }
+        .music-btn {
+            position: fixed;
+            left: 18px;
+            bottom: 18px;
+            z-index: 20;
+            background: rgba(0,0,0,0.45);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 12px #0005;
+            padding: 0;
+        }
+        .music-btn img {
+            width: 28px;
+            height: 28px;
+            transition: filter 0.2s;
+            filter: grayscale(0) brightness(1.2);
+        }
+        .music-btn.active img {
+            filter: drop-shadow(0 0 8px #09f369) brightness(1.2);
+        }
+        .music-btn.muted img {
+            filter: grayscale(1) brightness(0.7) opacity(0.5);
+        }
+        .music-btn:hover {
+            background: rgba(0,8,142,0.7);
+        }
+        .start-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 45%;
+            top: 45%;
+            transform: translate(-50%, -50%);
+            padding: 22px 70px;
+            font-size: 2rem;
+            border-radius: 18px;
+            border: none;
+            background: rgba(255,255,255,0.68);
+            color: #00088E;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 16px #0002;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            text-shadow: none;
+            z-index: 100;
+        }
+        .start-btn:hover {
+            background: rgba(255,255,255,0.88);
+            color: #2323c9;
+            box-shadow: 0 4px 24px #0004;
+        }
+        .container {
+            width: 90vw;
+            max-width: 1200px;
+            min-width: 600px;
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(34,34,34,0.70);
+            border-radius: 18px;
+            box-shadow: 0 4px 32px #0006;
+            padding: 32px 36px 32px 36px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        .subtitle {
+            text-align: center;
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        .input-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: block;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            color: #fff;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #fff;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            background: rgba(34,34,34,0.5);
+            color: #fff;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        button {
+            background: #00088E;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s, box-shadow 0.2s;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            box-shadow: 0 2px 8px #0003;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background: #2323c9;
+        }
+        .teams-list {
+            margin-bottom: 20px;
+        }
+        .teams-list input {
+            margin-bottom: 6px;
+        }
+        .fixture-table, .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        .fixture-table th, .fixture-table td,
+        .standings-table th, .standings-table td {
+            border: 1px solid #fff;
+            padding: 8px 4px;
+            text-align: center;
+            font-weight: normal;
+            color: #fff;
+            font-size: 1.05rem;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+        }
+        .fixture-table th, .standings-table th {
+            background: rgba(0,0,0,0.18);
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+        .fixture-table tr:nth-child(even),
+        .standings-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.04);
+        }
+        .result-input {
+            width: 40px;
+            text-align: center;
+            font-size: 1rem;
+            background: rgba(34,34,34,0.5);
+            border: 1px solid #fff;
+            color: #fff;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        .score-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .champion {
+            color: #fff;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #0008;
+        }
+        .team-icon {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            margin-right: 7px;
+            vertical-align: middle;
+            object-fit: contain;
+        }
+        .team-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: flex-start;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            font-size: 1.08rem;
+            letter-spacing: 0.5px;
+        }
+        .team-name-cell.right {
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        .standings-table td.team-cell {
+            text-align: left;
+            padding-left: 12px;
+            padding-right: 6px;
+            min-width: 170px;
+            max-width: 220px;
+            white-space: nowrap;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            font-size: 1.08rem;
+            letter-spacing: 0.5px;
+        }
+        .week-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            justify-content: center;
+        }
+        .week-tab {
+            background: rgba(0,8,142,0.8);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+        }
+        .week-tab.active, .week-tab:hover {
+            background: #00088E;
+        }
+        .week-tab.active {
+            color: #09f369 !important;
+        }
+        .bay-info {
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 8px;
+            font-family: 'Champions-Bold', Arial, sans-serif;
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+        /* Mobil uyumluluk geliştirmeleri */
+        @media (max-width: 1200px) {
+        .container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 98vw;
+            max-width: 100vw;
+            min-width: 0;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 2vw 1vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            }
+        }
+        @media (max-width: 800px) {
+            body {
+                background: url('arikligwp.png') no-repeat center center fixed;
+                background-size: cover;
+            }
+            .container { width: 100vw; min-width: 0; max-width: 100vw; padding: 4vw 2vw; min-height: unset; }
+            h1 { font-size: 2rem; }
+            .standings-table td.team-cell { min-width: 80px; }
+            .footer { font-size: 0.85rem; right: 8px; bottom: 6px; }
+            .music-btn { width: 38px; height: 38px; left: 8px; bottom: 8px; }
+            .music-btn img { width: 20px; height: 20px; }
+            .team-icon { width: 20px; height: 20px; }
+            .team-name-cell { font-size: 0.95rem; min-width: 60px; }
+            .fixture-table th, .fixture-table td,
+            .standings-table th, .standings-table td { font-size: 0.92rem; padding: 5px 2px; }
+            input[type="number"], input[type="text"] { font-size: 1rem; padding: 7px; }
+            button, .week-tab { font-size: 0.95rem; padding: 8px 14px; }
+        }
+        @media (max-width: 600px) {
+            html, body {
+                height: auto !important;
+                min-height: 100vh !important;
+                overflow-y: auto !important;
+            }
+            body.mob-wp {
+                background: url('mobarksitewp.png') no-repeat center center fixed !important;
+                background-size: cover !important;
+            }
+            body.mob-wp2 {
+                background: url('mobarksitewp2.png') no-repeat center center fixed !important;
+                background-size: cover !important;
+            }
+            body:not(.mob-wp):not(.mob-wp2) {
+                background: url('arikligwp.png') no-repeat center center fixed !important;
+                background-size: cover !important;
+            }
+            .container {
+                position: static;
+                top: unset;
+                left: unset;
+                transform: none;
+                min-width: 0;
+                min-height: unset;
+                width: 100vw;
+                max-width: 100vw;
+                padding: 2vw 1vw;
+                margin: 0 auto;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .start-btn {
+                position: absolute;
+                left: 53%;
+                top: 42%;
+                transform: translate(-50%, -50%);
+                font-size: 1.2rem;
+                padding: 14px 32px;
+            }
+            .footer { font-size: 0.7rem; }
+            .music-btn { width: 32px; height: 32px; }
+            .music-btn img { width: 16px; height: 16px; }
+            .fixture-table, .standings-table {
+                width: 98vw !important;
+                min-width: 0 !important;
+                max-width: 100vw !important;
+                font-size: 0.95rem !important;
+            }
+            .fixture-table th, .fixture-table td,
+            .standings-table th, .standings-table td {
+                font-size: 0.92rem !important;
+                padding: 5px 2px !important;
+                word-break: break-word;
+            }
+            .team-name-cell, .team-name-cell.right {
+                min-width: 0 !important;
+                font-size: 0.95rem !important;
+                flex-wrap: wrap;
+            }
+            .standings-table td.team-cell {
+                min-width: 0 !important;
+                max-width: 100vw !important;
+                padding-left: 4px;
+                padding-right: 2px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" sizes="32x32" href="arikligfavicon.png"> 
+</head>
+<body>
+    <!-- Müzik için audio elementi (gizli) -->
+    <audio id="bgmusic" src="arikligsong.mp3" loop></audio>
+    <!-- Sol alt köşe arikplayericon ile müzik butonu -->
+    <button class="music-btn muted" id="musicBtn" title="Müziği Aç/Kapat" aria-label="Müziği Aç/Kapat">
+        <img id="musicIcon" src="arikplayericon.png" alt="Müzik">
+    </button>
+    <div id="app"></div>
+    <div class="footer">© 2025 İbrahim Onur Arlı — This Site Was Created For Arık SSOOAE</div>
+    <script>
+        const audio = document.getElementById('bgmusic');
+        const musicBtn = document.getElementById('musicBtn');
+        const musicIcon = document.getElementById('musicIcon');
+
+        // Mobilde başla ekranında özel wallpaper göster
+        function setMobileWallpaper(isWelcome) {
+            if (window.innerWidth <= 600) {
+                if (isWelcome) {
+                    document.body.classList.add('mob-wp');
+                    document.body.classList.remove('mob-wp2');
+                } else {
+                    document.body.classList.remove('mob-wp');
+                    document.body.classList.add('mob-wp2');
+                }
+            }
+        }
+
+        // Arikplayericon'a tıklayınca müzik başlat/durdur
+        musicBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (audio.paused) {
+                audio.volume = 0.7;
+                audio.play().catch(()=>{});
+            } else {
+                audio.pause();
+            }
+            updateMusicBtn();
+        });
+
+        // Buton görünümünü güncelle
+        function updateMusicBtn() {
+            if (audio.paused) {
+                musicBtn.classList.remove('active');
+                musicBtn.classList.add('muted');
+            } else {
+                musicBtn.classList.remove('muted');
+                musicBtn.classList.add('active');
+            }
+        }
+
+        // Müzik otomatik başlasın (kullanıcı etkileşimi sonrası)
+        function startMusicOnce() {
+            if (audio.paused) {
+                audio.volume = 0.7;
+                audio.play().catch(()=>{});
+            }
+            updateMusicBtn();
+            window.removeEventListener('click', startMusicOnce);
+        }
+        window.addEventListener('click', startMusicOnce);
+
+        // Müzik durumunu değişince butonu güncelle
+        audio.addEventListener('play', updateMusicBtn);
+        audio.addEventListener('pause', updateMusicBtn);
+
+        // Uygulama durumu ve geri kalan kod...
+        let state = {
+            step: "welcome", // welcome, teamcount, teamnames, fixture, standings
+            teamCount: 4,
+            teams: [],
+            fixtures: [],
+            standings: [],
+            currentWeek: 0
+        };
+
+        function render() {
+            const app = document.getElementById('app');
+            // Mobilde wallpaper ayarla
+            setMobileWallpaper(state.step === "welcome");
+            if (state.step === "welcome") {
+                app.innerHTML = `
+                    <button class="start-btn" onclick="gotoTeamCount()">BAŞLA</button>
+                `;
+            }
+            else if (state.step === "teamcount") {
+                app.innerHTML = `
+                    <div class="container">
+                        <h1>Takım Sayısı</h1>
+                        <div class="input-group">
+                            <label>Kaç takım olacak? (En fazla 10)</label>
+                            <input type="number" id="teamCountInput" min="2" max="10" value="${state.teamCount}">
+                        </div>
+                        <div style="text-align:center;">
+                            <button onclick="gotoTeamNames()">Devam Et</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('teamCountInput').addEventListener('input', e => {
+                    state.teamCount = Math.max(2, Math.min(10, parseInt(e.target.value) || 2));
+                });
+            }
+            else if (state.step === "teamnames") {
+                let inputs = '';
+                for (let i = 0; i < state.teamCount; i++) {
+                    inputs += `
+                        <div class="team-name-cell">
+                            <img src="arikplayericon.png" class="team-icon" alt="icon">
+                            <input type="text" id="teamname${i}" placeholder="${i+1}. Takım Adı" maxlength="20" autocomplete="off">
+                        </div>
+                    `;
+                }
+                app.innerHTML = `
+                    <div class="container">
+                        <h1>Takım İsimleri</h1>
+                        <form onsubmit="event.preventDefault(); saveTeams();">
+                            <div class="teams-list">${inputs}</div>
+                            <div style="text-align:center;">
+                                <button type="submit">Fikstürü Oluştur</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            }
+            else if (state.step === "fixture") {
+                let weekTabs = '';
+                for (let i = 0; i < state.fixtures.length; i++) {
+                    weekTabs += `<button class="week-tab${state.currentWeek===i?' active':''}" onclick="gotoWeek(${i})">Hafta ${i+1}</button>`;
+                }
+                let week = state.fixtures[state.currentWeek];
+                let fixtureRows = '';
+                week.matches.forEach((m, i) => {
+                    fixtureRows += `
+                        <tr>
+                            <td>
+                                <span class="team-name-cell">
+                                    <img src="arikplayericon.png" class="team-icon" alt="icon">
+                                    ${m.home}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="score-flex">
+                                    <input type="number" min="0" max="99" class="result-input" id="homeScore${state.currentWeek}_${i}" value="${m.home_score !== null ? m.home_score : ''}" ${m.played ? 'disabled' : ''}>
+                                    <span style="font-weight:bold;">-</span>
+                                    <input type="number" min="0" max="99" class="result-input" id="awayScore${state.currentWeek}_${i}" value="${m.away_score !== null ? m.away_score : ''}" ${m.played ? 'disabled' : ''}>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="team-name-cell away-cell">
+                                    <img src="arikplayericon.png" class="team-icon" alt="icon">
+                                    ${m.away}
+                                </span>
+                            </td>
+                            <td>
+                                ${m.played ? '✓' : `<button onclick="saveResult(${state.currentWeek},${i})">Kaydet</button>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+                let bayInfo = week.bay ? `<div class="bay-info">Bay: <b>${week.bay}</b></div>` : '';
+                app.innerHTML = `
+                    <div class="container">
+                        <h1>Maçlar & Sonuç Girişi</h1>
+                        <div class="week-tabs">${weekTabs}</div>
+                        ${bayInfo}
+                        <table class="fixture-table">
+                            <tr>
+                                <th>Ev Sahibi</th>
+                                <th>Skor</th>
+                                <th>Deplasman</th>
+                                <th>İşlem</th>
+                            </tr>
+                            ${fixtureRows}
+                        </table>
+                        <div style="text-align:center;">
+                            <button onclick="gotoStandings()">Puan Tablosu</button>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (state.step === "standings") {
+                let rows = '';
+                state.standings.forEach((t, i) => {
+                    rows += `
+                        <tr>
+                            <td>${i+1}</td>
+                            <td class="team-cell">
+                                <span class="team-name-cell">
+                                    <img src="arikplayericon.png" class="team-icon" alt="icon">
+                                    <span>${t.team}</span>
+                                </span>
+                            </td>
+                            <td>${t.played}</td>
+                            <td>${t.win}</td>
+                            <td>${t.draw}</td>
+                            <td>${t.lose}</td>
+                            <td>${t.gf}</td>
+                            <td>${t.ga}</td>
+                            <td>${t.gd}</td>
+                            <td>${t.pts}</td>
+                        </tr>
+                    `;
+                });
+                app.innerHTML = `
+                    <div class="container">
+                        <h1>Puan Tablosu</h1>
+                        <div class="champion">Şampiyon: <b>${state.standings[0]?.team || ''}</b></div>
+                        <table class="standings-table">
+                            <tr>
+                                <th>#</th>
+                                <th>Takım</th>
+                                <th>O</th>
+                                <th>G</th>
+                                <th>B</th>
+                                <th>M</th>
+                                <th>A</th>
+                                <th>Y</th>
+                                <th>Av.</th>
+                                <th>P</th>
+                            </tr>
+                            ${rows}
+                        </table>
+                        <div style="text-align:center;">
+                            <button onclick="gotoFixture()">Maçlara Dön</button>
+                            <button onclick="restart()">Yeniden Başlat</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Ekran geçişleri
+        function gotoTeamCount() {
+            state.step = "teamcount";
+            render();
+        }
+        function gotoTeamNames() {
+            state.step = "teamnames";
+            render();
+        }
+        function saveTeams() {
+            let teams = [];
+            for (let i = 0; i < state.teamCount; i++) {
+                let val = document.getElementById('teamname'+i).value.trim();
+                if (!val) {
+                    alert("Tüm takım adlarını giriniz.");
+                    return;
+                }
+                teams.push(val);
+            }
+            // Benzersiz kontrolü
+            if (new Set(teams).size !== teams.length) {
+                alert("Takım adları benzersiz olmalı!");
+                return;
+            }
+            state.teams = teams;
+            createFixtures();
+            state.step = "fixture";
+            state.currentWeek = 0;
+            render();
+        }
+
+        // Round-robin fikstür algoritması (haftalara bölünmüş)
+        function createFixtures() {
+            let teams = [...state.teams];
+            let n = teams.length;
+            let isOdd = n % 2 !== 0;
+            if (isOdd) {
+                teams.push("BAY");
+                n++;
+            }
+            let rounds = n - 1;
+            let half = n / 2;
+            let fixtures = [];
+            let teamIdx = teams.map((t, i) => i);
+
+            for (let round = 0; round < rounds; round++) {
+                let matches = [];
+                for (let i = 0; i < half; i++) {
+                    let t1 = teamIdx[i];
+                    let t2 = teamIdx[n - 1 - i];
+                    if (teams[t1] !== "BAY" && teams[t2] !== "BAY") {
+                        matches.push({
+                            home: teams[t1],
+                            away: teams[t2],
+                            homeIdx: t1,
+                            awayIdx: t2,
+                            home_score: null,
+                            away_score: null,
+                            played: false
+                        });
+                    }
+                }
+                let bay = null;
+                if (isOdd) {
+                    // O hafta bay geçen takımın adını bul
+                    let playing = new Set();
+                    matches.forEach(m => {
+                        playing.add(m.home);
+                        playing.add(m.away);
+                    });
+                    bay = teams.find(t => t !== "BAY" && !playing.has(t));
+                }
+                fixtures.push({ matches, bay });
+                // Takımları döndür (round-robin)
+                teamIdx = [
+                    teamIdx[0],
+                    ...teamIdx.slice(-1),
+                    ...teamIdx.slice(1, -1)
+                ];
+            }
+            state.fixtures = fixtures;
+            updateStandings();
+        }
+
+        function saveResult(weekIdx, matchIdx) {
+            let h = document.getElementById('homeScore'+weekIdx+'_'+matchIdx);
+            let a = document.getElementById('awayScore'+weekIdx+'_'+matchIdx);
+            let hs = parseInt(h.value);
+            let as_ = parseInt(a.value);
+            if (isNaN(hs) || isNaN(as_)) {
+                alert("Skorları giriniz.");
+                return;
+            }
+            let match = state.fixtures[weekIdx].matches[matchIdx];
+            match.home_score = hs;
+            match.away_score = as_;
+            match.played = true;
+            updateStandings();
+            render();
+        }
+        function updateStandings() {
+            let stats = {};
+            state.teams.forEach(t => {
+                stats[t] = {team: t, played:0, win:0, draw:0, lose:0, gf:0, ga:0, gd:0, pts:0};
+            });
+            state.fixtures.forEach(week => {
+                week.matches.forEach(m => {
+                    if (!m.played) return;
+                    let h = m.home, a = m.away, hs = m.home_score, as_ = m.away_score;
+                    stats[h].played++; stats[a].played++;
+                    stats[h].gf += hs; stats[h].ga += as_;
+                    stats[a].gf += as_; stats[a].ga += hs;
+                    if (hs > as_) {
+                        stats[h].win++; stats[a].lose++; stats[h].pts += 3;
+                    } else if (hs < as_) {
+                        stats[a].win++; stats[h].lose++; stats[a].pts += 3;
+                    } else {
+                        stats[h].draw++; stats[a].draw++; stats[h].pts++; stats[a].pts++;
+                    }
+                });
+            });
+            Object.values(stats).forEach(t => t.gd = t.gf - t.ga);
+            state.standings = Object.values(stats).sort((a, b) => 
+                b.pts - a.pts || b.gd - a.gd || b.gf - a.gf
+            );
+        }
+        function gotoStandings() {
+            updateStandings();
+            state.step = "standings";
+            render();
+        }
+        function gotoFixture() {
+            state.step = "fixture";
+            render();
+        }
+        function gotoWeek(idx) {
+            state.currentWeek = idx;
+            render();
+        }
+        function restart() {
+            state = {
+                step: "welcome",
+                teamCount: 4,
+                teams: [],
+                fixtures: [],
+                standings: [],
+                currentWeek: 0
+            };
+            render();
+        }
+
+        // Başlangıç
+        render();
+        // Sayfa açılışında müzik butonunu güncelle
+        updateMusicBtn();
+    </script>
+</body>
+</html>
