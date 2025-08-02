@@ -76,6 +76,69 @@
         .music-btn:hover {
             background: rgba(0,8,142,0.7);
         }
+        .cark-btn {
+            position: fixed;
+            left: 18px;
+            bottom: 74px;
+            z-index: 21;
+            background: rgba(0,0,0,0.45);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 12px #0005;
+            padding: 0;
+        }
+        .cark-btn img {
+            width: 28px;
+            height: 28px;
+            transition: filter 0.2s;
+            filter: drop-shadow(0 0 0px #f3e709) brightness(1.2);
+        }
+        .cark-btn.active img {
+            filter: drop-shadow(0 0 8px #f3e709) brightness(1.2);
+        }
+        .cark-popup {
+            background: rgba(34,34,34,0.70) !important;
+            backdrop-filter: blur(8px);
+        }
+        .cark-close-btn {
+            position: fixed;
+            left: 18px;
+            bottom: 74px;
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: none;
+            color: transparent;
+            font-size: 2.2rem;
+            cursor: pointer;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            opacity: 0; /* Tamamen görünmez ama tıklanabilir */
+        }
+        .cark-close-btn span {
+            color: transparent;
+            background: transparent;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.1rem;
+            opacity: 0;
+        }
+        .cark-close-btn.invisible {
+            display: none !important;
+        }
         .start-btn {
             display: flex;
             align-items: center;
@@ -306,7 +369,6 @@
             font-weight: normal;
             letter-spacing: 1px;
         }
-        /* Mobil uyumluluk geliştirmeleri */
         @media (max-width: 1200px) {
         .container {
             position: fixed;
@@ -336,6 +398,9 @@
             .footer { font-size: 0.85rem; right: 8px; bottom: 6px; }
             .music-btn { width: 38px; height: 38px; left: 8px; bottom: 8px; }
             .music-btn img { width: 20px; height: 20px; }
+            .cark-btn { width: 38px; height: 38px; left: 8px; bottom: 52px; }
+            .cark-btn img { width: 20px; height: 20px; }
+            .cark-close-btn { width: 38px; height: 38px; left: 8px; bottom: 52px; }
             .team-icon { width: 20px; height: 20px; }
             .team-name-cell { font-size: 0.95rem; min-width: 60px; }
             .fixture-table th, .fixture-table td,
@@ -387,8 +452,11 @@
                 padding: 14px 32px;
             }
             .footer { font-size: 0.7rem; }
-            .music-btn { width: 32px; height: 32px; }
+            .music-btn { width: 32px; height: 32px; left: 8px; bottom: 8px; }
             .music-btn img { width: 16px; height: 16px; }
+            .cark-btn { width: 32px; height: 32px; left: 8px; bottom: 44px; }
+            .cark-btn img { width: 16px; height: 16px; }
+            .cark-close-btn { width: 32px; height: 32px; left: 8px; bottom: 44px; }
             .fixture-table, .standings-table {
                 width: 98vw !important;
                 min-width: 0 !important;
@@ -412,6 +480,16 @@
                 padding-left: 4px;
                 padding-right: 2px;
             }
+            /* Çark popup mobilde ortalanacak */
+            #carkPopup {
+                left: 50% !important;
+                bottom: 90px !important;
+                transform: translateX(-50%) !important;
+                min-width: 0 !important;
+                width: 90vw !important;
+                max-width: 98vw !important;
+                padding: 18px 6vw 16px 6vw !important;
+            }
         }
     </style>
     <link rel="icon" type="image/png" sizes="32x32" href="arikligfavicon.png"> 
@@ -419,12 +497,100 @@
 <body>
     <!-- Müzik için audio elementi (gizli) -->
     <audio id="bgmusic" src="arikligsong.mp3" loop></audio>
+    <!-- Takım Çarkı butonu -->
+    <button class="cark-btn" id="carkBtn" title="Takım Çarkı" aria-label="Takım Çarkı">
+        <img src="arklıgcark.png" alt="Çark">
+    </button>
+    <!-- Çarpı tuşu (görünmez ama tıklanabilir) -->
+    <button id="carkCloseBtn" class="cark-close-btn invisible" onclick="closeCarkPopup()" tabindex="0" aria-label="Kapat">
+        <span>&times;</span>
+    </button>
     <!-- Sol alt köşe arikplayericon ile müzik butonu -->
     <button class="music-btn muted" id="musicBtn" title="Müziği Aç/Kapat" aria-label="Müziği Aç/Kapat">
         <img id="musicIcon" src="arikplayericon.png" alt="Müzik">
     </button>
     <div id="app"></div>
     <div class="footer">© 2025 İbrahim Onur Arlı — This Site Was Created For Arık SSOOAE</div>
+    <!-- Takım Çarkı Popup için alan -->
+    <div id="carkPopupRoot"></div>
+    <script>
+        // Takım Çarkı Popup kodu
+        const carkBtn = document.getElementById('carkBtn');
+        const carkPopupRoot = document.getElementById('carkPopupRoot');
+        const carkCloseBtn = document.getElementById('carkCloseBtn');
+        let carkResult = "";
+        let carkOpen = false;
+
+        carkBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!carkOpen) {
+                carkBtn.classList.add('active');
+                openCarkPopup();
+            }
+        });
+
+        function openCarkPopup() {
+            carkResult = "";
+            carkOpen = true;
+            renderCarkPopup();
+            carkCloseBtn.classList.remove('invisible');
+            setTimeout(() => {
+                window.addEventListener('mousedown', closeCarkPopupOnOutside);
+            }, 10);
+        }
+
+        function closeCarkPopup() {
+            carkPopupRoot.innerHTML = "";
+            carkBtn.classList.remove('active');
+            carkOpen = false;
+            carkCloseBtn.classList.add('invisible');
+            window.removeEventListener('mousedown', closeCarkPopupOnOutside);
+        }
+
+        function closeCarkPopupOnOutside(e) {
+            const popup = document.getElementById('carkPopup');
+            if (popup && !popup.contains(e.target) && e.target !== carkBtn && e.target !== carkCloseBtn && !carkCloseBtn.contains(e.target)) {
+                closeCarkPopup();
+            }
+        }
+
+        function handleCarkAl() {
+            // FC25 en iyi 30 takım + 4 Türk takımı
+            const carkTeams = [
+                "Manchester City", "Real Madrid", "Bayern Münih", "Liverpool", "Arsenal",
+                "Inter", "Paris Saint-Germain", "Barcelona", "Atletico Madrid", "Juventus",
+                "Borussia Dortmund", "Chelsea", "RB Leipzig", "Napoli", "AC Milan",
+                "Tottenham Hotspur", "Bayer Leverkusen", "Roma", "Newcastle United", "Benfica",
+                "Ajax", "Porto", "Sevilla", "Sporting CP", "Marseille",
+                "PSV Eindhoven", "Galatasaray", "Fenerbahçe", "Beşiktaş", "Trabzonspor"
+            ];
+            const idx = Math.floor(Math.random() * carkTeams.length);
+            carkResult = carkTeams[idx];
+            renderCarkPopup();
+        }
+
+        function renderCarkPopup() {
+            // Mobilde popup ortalanacak şekilde id ve style veriyoruz
+            let popupStyle = "position: fixed; left: 80px; bottom: 74px; border-radius: 18px; box-shadow: 0 4px 32px #000a; padding: 24px 32px 20px 32px; min-width: 260px; max-width: 90vw; min-height: 80px; display: flex; flex-direction: column; align-items: center; font-family: 'Champions-Bold', Arial, sans-serif; z-index: 1002; position: fixed;";
+            if (window.innerWidth <= 600) {
+                popupStyle = "position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); border-radius: 18px; box-shadow: 0 4px 32px #000a; padding: 18px 6vw 16px 6vw; min-width: 0; width: 90vw; max-width: 98vw; min-height: 80px; display: flex; flex-direction: column; align-items: center; font-family: 'Champions-Bold', Arial, sans-serif; z-index: 1002;";
+            }
+            carkPopupRoot.innerHTML = `
+                <div class="cark-popup" id="carkPopup" style="${popupStyle}">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <img src="arklıgcark.png" alt="Çark" style="width: 32px; height: 32px;">
+                        <span style="font-size: 1.2rem; color: #fff; letter-spacing: 1px; text-shadow: 0 2px 8px #0008;">Takım Çarkı</span>
+                    </div>
+                    <button onclick="handleCarkAl()" style="background: rgba(0,8,142,0.85); color: #fff; border: none; border-radius: 10px; padding: 14px 38px; font-size: 1.15rem; cursor: pointer; margin-top: 8px; margin-bottom: 14px; transition: background 0.2s, box-shadow 0.2s; font-family: 'Champions-Bold', Arial, sans-serif; font-weight: normal; box-shadow: 0 2px 8px #0003; letter-spacing: 1px;">Takım Al</button>
+                    <div style="margin-top: 10px; font-size: 1.18rem; color: #09f369; text-align: center; min-height: 28px; font-family: 'Champions-Bold', Arial, sans-serif; text-shadow: 0 2px 8px #0008;">${carkResult ? `<b>${carkResult}</b>` : ""}</div>
+                </div>
+            `;
+        }
+
+        // Popup fonksiyonlarını window'a ekle (onclick için)
+        window.closeCarkPopup = closeCarkPopup;
+        window.handleCarkAl = handleCarkAl;
+    </script>
     <script>
         const audio = document.getElementById('bgmusic');
         const musicBtn = document.getElementById('musicBtn');
@@ -804,12 +970,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
