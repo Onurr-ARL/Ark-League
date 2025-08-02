@@ -345,7 +345,7 @@
         }
         @media (max-width: 600px) {
             html, body {
-                height: auto !important;
+                height: 100vh !important;
                 min-height: 100vh !important;
                 overflow-y: auto !important;
             }
@@ -361,14 +361,15 @@
                 background: url('arikligwp.png') no-repeat center center fixed !important;
                 background-size: cover !important;
             }
+            /* Mobilde container'ı tam ortala */
             .container {
-                position: static;
-                top: unset;
-                left: unset;
-                transform: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 min-width: 0;
                 min-height: unset;
-                width: 100vw;
+                width: 98vw;
                 max-width: 100vw;
                 padding: 2vw 1vw;
                 margin: 0 auto;
