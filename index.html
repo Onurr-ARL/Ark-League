@@ -642,7 +642,7 @@
         musicBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             if (audio.paused) {
-                audio.volume = 0.1;
+                audio.volume = 1;
                 audio.play().catch(()=>{});
             } else {
                 audio.pause();
@@ -1014,5 +1014,6 @@
     </script>
 </body>
 </html>
+
 
 
